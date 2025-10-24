@@ -1,0 +1,38 @@
+# Render Blueprint for Campus AI Suggestion Box
+
+services:
+  # Backend API Service
+  - type: web
+    name: campus-ai-backend
+    env: node
+    region: oregon
+    plan: free
+    branch: main
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: MONGODB_URI
+        sync: false  # Set manually in Render dashboard
+      - key: OPENAI_API_KEY
+        sync: false  # Set manually in Render dashboard
+      - key: FRONTEND_URL
+        value: https://campus-ai-frontend.onrender.com
+
+  # Frontend Static Site
+  - type: web
+    name: campus-ai-frontend
+    env: static
+    region: oregon
+    plan: free
+    branch: main
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    staticPublishPath: build
+    envVars:
+      - key: REACT_APP_BACKEND_URL
+        value: https://campus-ai-backend.onrender.com
