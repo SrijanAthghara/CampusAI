@@ -1,9 +1,15 @@
 const OpenAI = require('openai');
 const Feedback = require('../models/Feedback');
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+// Check if OpenAI API key is available and not fallback mode
+const hasValidOpenAIKey = process.env.OPENAI_API_KEY && process.env.OPENAI_API_KEY !== 'fallback_mode';
+
+let openai = null;
+if (hasValidOpenAIKey) {
+  openai = new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY,
+  });
+}
 
 // Controller to submit feedback
 const submitFeedback = async (req, res) => {
@@ -17,11 +23,12 @@ const submitFeedback = async (req, res) => {
     // Categorize feedback using OpenAI with fallback
     let category = 'Others';
     
-    // First try OpenAI categorization
-    try {
-      const completion = await openai.chat.completions.create({
-        model: "gpt-3.5-turbo",
-        messages: [
+    // First try OpenAI categorization if available
+    if (hasValidOpenAIKey && openai) {
+      try {
+        const completion = await openai.chat.completions.create({
+          model: "gpt-3.5-turbo",
+          messages: [
           {
             role: "system",
             content: `You are a campus feedback categorization assistant. Analyze the feedback and categorize it into EXACTLY ONE of these categories:
@@ -55,9 +62,13 @@ Respond with ONLY the category name (Canteen, Hostel, Academics, Infrastructure,
         console.log(`❌ Invalid category "${aiCategory}", using fallback`);
         category = fallbackCategorization(feedback);
       }
-    } catch (openaiError) {
-      console.error('❌ OpenAI API Error:', openaiError.message);
-      console.log('🔄 Using fallback keyword-based categorization');
+      } catch (openaiError) {
+        console.error('❌ OpenAI API Error:', openaiError.message);
+        console.log('🔄 Using fallback keyword-based categorization');
+        category = fallbackCategorization(feedback);
+      }
+    } else {
+      console.log('🔄 Using fallback keyword-based categorization (no OpenAI key)');
       category = fallbackCategorization(feedback);
     }
 
