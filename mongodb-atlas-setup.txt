@@ -1,8 +1,0 @@
-# Replace this line in your backend/.env file:
-# MONGODB_URI=mongodb://localhost:27017/campus-suggestion-box
-
-# With your Atlas connection string:
-# MONGODB_URI=mongodb+srv://username:password@cluster0.xxxxx.mongodb.net/campus-suggestion-box?retryWrites=true&w=majority
-
-# Example (replace with your actual details):
-# MONGODB_URI=mongodb+srv://campusadmin:yourpassword@cluster0.abc123.mongodb.net/campus-suggestion-box?retryWrites=true&w=majority
